@@ -1,3 +1,5 @@
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -19,17 +21,21 @@ const Login = () => {
             <form onSubmit={() => {}}>
               <h4 className='text-2xl font-semibold mb-7'>Login</h4>
 
-              <input type="text" placeholder='john@gmail.com' className='input-box' />
+              <Input 
+                type="text"
+                placeholder="john123@gmail.com"
+                className="input-box"
+              />
 
-              <button type='submit' className='btn-auto'>
+              <Button type='submit' className='btn-auto'>
                 Login
-              </button>
+              </Button>
 
               <p className=''>Or</p>
 
-              <button type='submit' className='' onClick={() => {navigate("/register")}}>
+              <Button type='submit' className='' onClick={() => {navigate("/register")}}>
                 Create Account
-              </button>
+              </Button>
             </form>
           </div>
         </div>
