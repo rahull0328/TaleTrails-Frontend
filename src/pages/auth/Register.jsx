@@ -10,6 +10,56 @@ const Register = () => {
 
   const navigate = useNavigate();
 
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+
+    if(!name) {
+      setError("Please enter full name")
+      return
+    }
+
+    if(!validateEmail(email)){
+      setError("Invalid email");
+      return 
+    }
+
+    if(!password) {
+      setError("Please enter password")
+      return
+    }
+
+    setError("")
+
+    //register api call
+    try {
+      const response = await axiosInstance.post("/user/register", {
+        fullName: name,
+        email: email,
+        password: password,
+      })
+
+      if(response.data && response.data.accessToken) {
+        localStorage.setItem("token", response.data.accessToken)
+        navigate("/dashboard")
+      }
+    } catch (error) {
+      console.log(error)
+      if(
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        setError(error.response.data.message)
+      } else {
+        setError("Something went wrong")
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-cyan-50 overflow-hidden relative">
