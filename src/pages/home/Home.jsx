@@ -44,7 +44,23 @@ const Home = () => {
   const handleViewTale = (data) => {}
 
   //handle isFavourite click
-  const updateIsFavourite = async (taleData) => {}
+  const updateIsFavourite = async (taleData) => {
+    const storyId = taleData._id
+
+    try {
+      const response = await axiosInstance.put('/tale/addToFavourites/' + storyId, 
+        {
+          isFavourite: !taleData.isFavourite
+        }
+      )
+
+      if(response.data && response.data.tale) {
+        getAllTales()
+      }
+    } catch (error) {
+      console.error("Unexpected Error Occured.");
+    }
+  }
 
   useEffect(() => {
     getUserInfo();
