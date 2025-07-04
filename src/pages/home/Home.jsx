@@ -26,20 +26,29 @@ const Home = () => {
   };
 
   //getting all travel stories
-  const getAllTravelStories = async () => {
+  const getAllTales = async () => {
     try {
       const response = await axiosInstance.get("/tale/getAllTales");
-      if (response.data && response.data.user) {
-        setAllStories(response.data.user);
+      if (response.data && response.data.tales) {
+        setAllStories(response.data.tales);
       }
     } catch (error) {
       console.error("Unexpected Error Occured");
     }
   };
 
+  //handle edit story click 
+  const handleEdit = (data) => {}
+
+  //handle tale click 
+  const handleViewTale = (data) => {}
+
+  //handle isFavourite click
+  const updateIsFavourite = async (taleData) => {}
+
   useEffect(() => {
-    getAllTravelStories();
     getUserInfo();
+    getAllTales();
 
     return () => {};
   }, []);
@@ -50,11 +59,22 @@ const Home = () => {
 
       <div className="container mx-auto py-10">
         <div className="flex gap-7">
-          <div className="flex-1">
+          <div className="flex-1/2">
             {allStories.length > 0 ? (
               <div className="grid grid-cols-2 gap-4">
                 {allStories.map((item) => {
-                  return <TaleCard key={item._id} />;
+                  return (
+                    <TaleCard 
+                      key={item._id}
+                      title={item.title} 
+                      tale={item.tale}
+                      date={item.visitedDate}
+                      visitedLocation={item.visitedLocation}
+                      isFavourite={item.isFavourite}
+                      onEdit={()=> handleEdit(item)}
+                      onClick={()=> handleViewTale(item)}
+                      onFavouriteClick={()=> updateIsFavourite(item)}
+                    />);
                 })}
               </div>
             ) : (
