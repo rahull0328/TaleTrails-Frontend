@@ -5,10 +5,10 @@ import {GrMapLocation} from 'react-icons/gr'
 
 const TaleCard = ({title, date, tale, visitedLocation, isFavourite, onFavouriteClick, onClick}) => {
   return (
-    <div className='border rounded-lg overflow-hidden bg-white hover:shadow-lg hover:shadow-slate-200 transition-all ease-in-out relative cursor-pointer'>
+    <div className='border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-lg hover:shadow-slate-200 transition-all ease-in-out relative cursor-pointer'>
         <img 
             src="null" 
-            alt="Tale Cover Image" 
+            alt="Tale Banner" 
             className='w-full h-56 object-cover rounded-lg'
         />
 
