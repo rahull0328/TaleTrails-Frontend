@@ -18,10 +18,10 @@ const TaleCard = ({title, date, tale, visitedLocation, isFavourite, onFavouriteC
 
         <div className='p-4' onClick={onClick}>
             <div className='flex items-center gap-3'>
-                <div className='flex-1/2'>
+                <div className='flex-1'>
                     <h6 className='text-sm font-medium'>{title}</h6>
                     <span className='text-xs text-slate-500'>
-                        {date ? moment(date).format("DD MM YYYY") : "-"}
+                        {date ? moment(date).format("Do MMM YYYY") : "-"}
                     </span>
                 </div>
             </div>

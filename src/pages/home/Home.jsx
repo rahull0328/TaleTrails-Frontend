@@ -3,6 +3,7 @@ import Navbar from "@/components/shared/Navbar";
 import axiosInstance from "@/utils/axiosInstance";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -37,30 +38,36 @@ const Home = () => {
     }
   };
 
-  //handle edit story click 
-  const handleEdit = (data) => {}
+  //handle edit story click
+  const handleEdit = (data) => {};
 
-  //handle tale click 
-  const handleViewTale = (data) => {}
+  //handle tale click
+  const handleViewTale = (data) => {};
 
   //handle isFavourite click
   const updateIsFavourite = async (taleData) => {
-    const storyId = taleData._id
+    const taleId = taleData._id;
 
     try {
-      const response = await axiosInstance.put('/tale/addToFavourites/' + storyId, 
+      const response = await axiosInstance.put(
+        "/tale/addToFavourites/" + taleId,
         {
-          isFavourite: !taleData.isFavourite
+          isFavourite: !taleData.isFavourite,
         }
-      )
+      );
 
-      if(response.data && response.data.tale) {
-        getAllTales()
+      if (response.data && response.data.message) {
+        if(!taleData.isFavourite) {
+          toast("Added to favourites! ");
+        } else {
+          toast.info("Removed from favourites!")
+        }
+        getAllTales();
       }
     } catch (error) {
       console.error("Unexpected Error Occured.");
     }
-  }
+  };
 
   useEffect(() => {
     getUserInfo();
@@ -80,17 +87,18 @@ const Home = () => {
               <div className="grid grid-cols-2 gap-4">
                 {allStories.map((item) => {
                   return (
-                    <TaleCard 
+                    <TaleCard
                       key={item._id}
-                      title={item.title} 
+                      title={item.title}
                       tale={item.tale}
                       date={item.visitedDate}
                       visitedLocation={item.visitedLocation}
                       isFavourite={item.isFavourite}
-                      onEdit={()=> handleEdit(item)}
-                      onClick={()=> handleViewTale(item)}
-                      onFavouriteClick={()=> updateIsFavourite(item)}
-                    />);
+                      onEdit={() => handleEdit(item)}
+                      onClick={() => handleViewTale(item)}
+                      onFavouriteClick={() => updateIsFavourite(item)}
+                    />
+                  );
                 })}
               </div>
             ) : (
@@ -100,6 +108,16 @@ const Home = () => {
           <div className="w-[320px]"></div>
         </div>
       </div>
+
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnHover
+        theme="light"
+      />
     </>
   );
 };
