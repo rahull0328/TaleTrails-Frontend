@@ -131,7 +131,7 @@ const Home = () => {
           },
         }}
         appElement={document.getElementById("root")}
-        className="modal-box"
+        className="modal-box scrollbar"
       >
         <AddTaleModal
           type={openAddEditModal.type}
@@ -139,6 +139,7 @@ const Home = () => {
           onClose={() => {
             setOpenAddEditModal({ isShown: false, type: "add", data: null });
           }}
+          getAllTales={getAllTales}
         />
       </ReactModal>
 
