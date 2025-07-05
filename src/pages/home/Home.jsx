@@ -4,6 +4,9 @@ import axiosInstance from "@/utils/axiosInstance";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
+import { MdAdd } from "react-icons/md";
+import ReactModal from "react-modal";
+import AddTaleModal from "./AddTaleModal";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -11,7 +14,13 @@ const Home = () => {
   const [userInfo, setUserInfo] = useState(null);
   const [allStories, setAllStories] = useState([]);
 
-  //getting user info
+  const [openAddEditModal, setOpenAddEditModal] = useState({
+    isShown: false,
+    type: "add",
+    data: null,
+  });
+
+  // Get user info
   const getUserInfo = async () => {
     try {
       const response = await axiosInstance.get("/user/getUserInfo");
@@ -19,14 +28,14 @@ const Home = () => {
         setUserInfo(response.data.user);
       }
     } catch (error) {
-      if (error.response.status === 401) {
+      if (error.response?.status === 401) {
         localStorage.clear();
         navigate("/login");
       }
     }
   };
 
-  //getting all travel stories
+  // Get all travel stories
   const getAllTales = async () => {
     try {
       const response = await axiosInstance.get("/tale/getAllTales");
@@ -34,17 +43,17 @@ const Home = () => {
         setAllStories(response.data.tales);
       }
     } catch (error) {
-      console.error("Unexpected Error Occured");
+      console.error("Unexpected Error Occurred");
     }
   };
 
-  //handle edit story click
+  // Handle edit story click
   const handleEdit = (data) => {};
 
-  //handle tale click
+  // Handle tale click
   const handleViewTale = (data) => {};
 
-  //handle isFavourite click
+  // Handle isFavourite click
   const updateIsFavourite = async (taleData) => {
     const taleId = taleData._id;
 
@@ -57,57 +66,91 @@ const Home = () => {
       );
 
       if (response.data && response.data.message) {
-        if(!taleData.isFavourite) {
-          toast("Added to favourites! ");
+        if (!taleData.isFavourite) {
+          toast("Added to favourites!");
         } else {
-          toast.info("Removed from favourites!")
+          toast.info("Removed from favourites!");
         }
         getAllTales();
       }
     } catch (error) {
-      console.error("Unexpected Error Occured.");
+      console.error("Unexpected Error Occurred.");
     }
   };
 
   useEffect(() => {
     getUserInfo();
     getAllTales();
-
-    return () => {};
   }, []);
 
   return (
     <>
       <Navbar userInfo={userInfo} />
 
-      <div className="container mx-auto py-10">
-        <div className="flex gap-7">
-          <div className="flex-1/2">
+      {/* Tale Cards Section */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+        <div className="flex flex-col lg:flex-row gap-7">
+          {/* Tale Card List */}
+          <div className="flex-1">
             {allStories.length > 0 ? (
-              <div className="grid grid-cols-2 gap-4">
-                {allStories.map((item) => {
-                  return (
-                    <TaleCard
-                      key={item._id}
-                      title={item.title}
-                      tale={item.tale}
-                      date={item.visitedDate}
-                      visitedLocation={item.visitedLocation}
-                      isFavourite={item.isFavourite}
-                      onEdit={() => handleEdit(item)}
-                      onClick={() => handleViewTale(item)}
-                      onFavouriteClick={() => updateIsFavourite(item)}
-                    />
-                  );
-                })}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                {allStories.map((item) => (
+                  <TaleCard
+                    key={item._id}
+                    title={item.title}
+                    tale={item.tale}
+                    date={item.visitedDate}
+                    visitedLocation={item.visitedLocation}
+                    isFavourite={item.isFavourite}
+                    onEdit={() => handleEdit(item)}
+                    onClick={() => handleViewTale(item)}
+                    onFavouriteClick={() => updateIsFavourite(item)}
+                  />
+                ))}
               </div>
             ) : (
-              <>Empty Card Here</>
+              <div className="text-slate-500 text-center py-10">
+                No tales found.
+              </div>
             )}
           </div>
-          <div className="w-[320px]"></div>
+
+          {/* Right Sidebar (optional) */}
+          <div className="hidden lg:block w-[300px] xl:w-[180px]"></div>
         </div>
       </div>
+
+      {/* add & edit tales modal */}
+      <ReactModal
+        isOpen={openAddEditModal.isShown}
+        onRequestClose={() => {}}
+        style={{
+          overlay: {
+            backgroundColor: "rgba(0,0,0,0.2)",
+            zIndex: 999,
+          },
+        }}
+        appElement={document.getElementById("root")}
+        className="modal-box"
+      >
+        <AddTaleModal
+          type={openAddEditModal.type}
+          taleInfo={openAddEditModal.data}
+          onClose={() => {
+            setOpenAddEditModal({ isShown: false, type: "add", data: null });
+          }}
+        />
+      </ReactModal>
+
+      {/* Floating Add Button */}
+      <button
+        className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-full bg-[#05B6D3] hover:bg-cyan-400 fixed right-6 sm:right-10 bottom-6 sm:bottom-10 z-50"
+        onClick={() =>
+          setOpenAddEditModal({ isShown: true, type: "add", data: null })
+        }
+      >
+        <MdAdd className="text-[28px] sm:text-[32px] text-white" />
+      </button>
 
       <ToastContainer
         position="bottom-right"
