@@ -99,6 +99,7 @@ const Home = () => {
                     key={item._id}
                     title={item.title}
                     tale={item.tale}
+                    image={item.image}
                     date={item.visitedDate}
                     visitedLocation={item.visitedLocation}
                     isFavourite={item.isFavourite}

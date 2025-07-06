@@ -3,17 +3,17 @@ import React from 'react'
 import { FaHeart } from 'react-icons/fa6'
 import {GrMapLocation} from 'react-icons/gr'
 
-const TaleCard = ({title, date, tale, visitedLocation, isFavourite, onFavouriteClick, onClick}) => {
+const TaleCard = ({title, date, tale, image, visitedLocation, isFavourite, onFavouriteClick, onClick}) => {
   return (
     <div className='border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-lg hover:shadow-slate-200 transition-all ease-in-out relative cursor-pointer'>
-        <img 
-            src="null" 
+        {image && <img 
+            src={image} 
             alt="Tale Banner" 
             className='w-full h-56 object-cover rounded-lg'
-        />
+        />}
 
-        <button className='w-12 h-12 flex items-center justify-center bg-white/40 rounded-lg border border-white/30 absolute top-4 right-4' onClick={onFavouriteClick}>
-            <FaHeart className={`icon-btn ${isFavourite ? "text-red-500" : "text-white"}`} />
+        <button className='w-12 h-12 flex items-center justify-center bg-white/30 rounded-lg border border-white/30 absolute top-4 right-4' onClick={onFavouriteClick}>
+            <FaHeart className={`text-[22px] text-slate-300 cursor-pointer hover:text-red-500 ${isFavourite ? "text-red-500" : "text-white"}`} />
         </button>
 
         <div className='p-4' onClick={onClick}>
