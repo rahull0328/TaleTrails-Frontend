@@ -1,5 +1,6 @@
 import DateSelector from "@/components/input/DateSelector";
 import ImageSelector from "@/components/input/ImageSelector";
+import TagInput from "@/components/input/TagInput";
 import React, { use, useState } from "react";
 import { MdAdd, MdClose, MdDeleteOutline, MdUpdate } from "react-icons/md";
 
@@ -11,7 +12,13 @@ const AddTaleModal = ({ taleInfo, type, onClose, getAllTales }) => {
   const [visitedLocation, setVisitedLocation] = useState([])
   const [visitedDate, setVisitedDate] = useState(null)
 
-  const handleAddOrUpdateClick = () => {};
+  const handleAddOrUpdateClick = () => {
+    console.log("Input Data: ", {title, taleImg, tale, visitedLocation, visitedDate});
+  };
+
+  const handleDeleteTaleImg = async () => {
+
+  }
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -22,7 +29,7 @@ const AddTaleModal = ({ taleInfo, type, onClose, getAllTales }) => {
         <div>
           <div className="flex items-center gap-3 bg-cyan-50/50 p-2 rounded-l-lg">
             {type === "add" ? (
-              <button className="btn-small" onClick={() => {}}>
+              <button className="btn-small" onClick={handleAddOrUpdateClick}>
                 <MdAdd className="text-lg" /> Add Tale
               </button>
             ) : (
@@ -56,7 +63,7 @@ const AddTaleModal = ({ taleInfo, type, onClose, getAllTales }) => {
             </div>
 
             <div>
-              <ImageSelector image={taleImg} setImage={setTaleImg} />
+              <ImageSelector image={taleImg} setImage={setTaleImg} handleDeleteImg={handleDeleteTaleImg} />
             </div>
 
             <div className="flex flex-col gap-2 mt-4">
@@ -70,6 +77,12 @@ const AddTaleModal = ({ taleInfo, type, onClose, getAllTales }) => {
               >
               </textarea>
             </div>
+
+            <div className="pt-3">
+              <label className="input-label">Visited Locations</label>
+              <TagInput tags={visitedLocation} setTags={setVisitedLocation} />
+            </div>
+
         </div>
       </div>
     </div>
