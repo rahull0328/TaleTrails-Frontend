@@ -1,7 +1,16 @@
-import React from "react";
+import DateSelector from "@/components/input/DateSelector";
+import ImageSelector from "@/components/input/ImageSelector";
+import React, { use, useState } from "react";
 import { MdAdd, MdClose, MdDeleteOutline, MdUpdate } from "react-icons/md";
 
 const AddTaleModal = ({ taleInfo, type, onClose, getAllTales }) => {
+
+  const [title, setTitle] = useState("")
+  const [taleImg, setTaleImg] = useState(null)
+  const [tale, setTale] = useState("")
+  const [visitedLocation, setVisitedLocation] = useState([])
+  const [visitedDate, setVisitedDate] = useState(null)
+
   const handleAddOrUpdateClick = () => {};
   return (
     <div>
@@ -37,11 +46,29 @@ const AddTaleModal = ({ taleInfo, type, onClose, getAllTales }) => {
             <input 
                 type="text"
                 className="text-2xl text-slate-950 outline-none" 
-                placeholder="A Day at the Great Wal"
+                placeholder="A Day at the Great Wall"
+                value={title}
+                onChange={({target}) => setTitle(target.value) }
             />
 
             <div className="my-3">
-                <DateSelector />
+                <DateSelector date={visitedDate} setDate={setVisitedDate} />
+            </div>
+
+            <div>
+              <ImageSelector image={taleImg} setImage={setTaleImg} />
+            </div>
+
+            <div className="flex flex-col gap-2 mt-4">
+              <label className="input-label">Add Your Tale</label>
+              <textarea 
+                type="text"
+                className="text-sm text-slate-950 outline-none bg-slate-50 p-2 rounded"
+                rows={10}
+                value={tale}
+                onChange={({target}) => setTale(target.value)}
+              >
+              </textarea>
             </div>
         </div>
       </div>
