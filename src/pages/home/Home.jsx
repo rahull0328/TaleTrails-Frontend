@@ -54,7 +54,9 @@ const Home = () => {
   };
 
   // Handle edit story click
-  const handleEdit = (data) => {};
+  const handleEdit = (data) => {
+    setOpenAddEditModal({isShown: true, type: "edit", data: data})
+  };
 
   // Handle tale click
   const handleViewTale = (data) => {
@@ -167,9 +169,14 @@ const Home = () => {
       >
         <ViewTale 
           taleInfo = {openViewModal.data || null}
-          onclose={()=> {}}
+          onclose={()=> {
+            setOpenViewModal((prevState) => ({...prevState, isShown: false}))
+          }}
           onDeleteClick={()=> {}}
-          onEditClick={()=> {}}
+          onEditClick={()=> {
+            setOpenViewModal((prevState) => ({...prevState, isShown: false}))
+            handleEdit(openViewModal.data || null)
+          }}
         />
       </ReactModal>
 
