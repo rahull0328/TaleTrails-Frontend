@@ -7,6 +7,7 @@ import { ToastContainer, toast } from "react-toastify";
 import { MdAdd } from "react-icons/md";
 import ReactModal from "react-modal";
 import AddTaleModal from "./AddTaleModal";
+import ViewTale from "./ViewTale";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -19,6 +20,11 @@ const Home = () => {
     type: "add",
     data: null,
   });
+
+  const [openViewModal, setOpenViewModal] = useState({
+    isShown: false,
+    data: null,
+  })
 
   // Get user info
   const getUserInfo = async () => {
@@ -51,7 +57,9 @@ const Home = () => {
   const handleEdit = (data) => {};
 
   // Handle tale click
-  const handleViewTale = (data) => {};
+  const handleViewTale = (data) => {
+    setOpenViewModal({isShown: true, data})
+  };
 
   // Handle isFavourite click
   const updateIsFavourite = async (taleData) => {
@@ -93,7 +101,7 @@ const Home = () => {
           {/* Tale Card List */}
           <div className="flex-1">
             {allStories.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-6">
                 {allStories.map((item) => (
                   <TaleCard
                     key={item._id}
@@ -117,7 +125,7 @@ const Home = () => {
           </div>
 
           {/* Right Sidebar (optional) */}
-          <div className="hidden lg:block w-[300px] xl:w-[180px]"></div>
+          <div className="hidden lg:block w-[300px] xl:w-[400px]"></div>
         </div>
       </div>
 
@@ -141,6 +149,27 @@ const Home = () => {
             setOpenAddEditModal({ isShown: false, type: "add", data: null });
           }}
           getAllTales={getAllTales}
+        />
+      </ReactModal>
+
+      {/* open popup modal for selected tale */}
+      <ReactModal
+        isOpen={openViewModal.isShown}
+        onRequestClose={()=> {}}
+        style={{
+          overlay: {
+            backgroundColor: "rgba(0,0,0,0.2)",
+            zIndex: 999,
+          }
+        }}
+        appElement={document.getElementById("root")}
+        className="modal-box scrollbar"
+      >
+        <ViewTale 
+          taleInfo = {openViewModal.data || null}
+          onclose={()=> {}}
+          onDeleteClick={()=> {}}
+          onEditClick={()=> {}}
         />
       </ReactModal>
 

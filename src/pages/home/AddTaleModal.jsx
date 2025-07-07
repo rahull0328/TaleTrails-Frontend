@@ -18,8 +18,7 @@ const AddTaleModal = ({ taleInfo, type, onClose, getAllTales }) => {
   const [visitedDate, setVisitedDate] = useState(null);
   const [error, setError] = useState("");
 
-  const addNewTale = async (e) => {
-    e.preventDefault()
+  const addNewTale = async () => {
     const formData = new FormData();
     formData.append("title", title);
     formData.append("tale", tale);
@@ -88,7 +87,7 @@ const AddTaleModal = ({ taleInfo, type, onClose, getAllTales }) => {
 
   const handleDeleteTaleImg = async () => {};
   return (
-    <div>
+    <div className="relative">
       <div className="flex items-center justify-between">
         <h5 className="text-xl font-medium text-slate-700">
           {type === "add" ? "Add Tale" : "Update Tale"}
@@ -99,16 +98,15 @@ const AddTaleModal = ({ taleInfo, type, onClose, getAllTales }) => {
             {type === "add" ? (
 
               loading ? (
-                  <button className='w-full my-4'>
-                    {""}
-                    <Loader2 className='mr-2 h-4 w-4 animate-spin' /> Please Wait {""}
+                  <button className='btn-small flex items-center gap-2 opacity-70 cursor-not-allowed' disabled>
+                    <Loader2 className='h-4 w-4 animate-spin' /> Please Wait
                   </button>
               ) : (
                 <button className="btn-small" onClick={handleAddOrUpdateClick}>
                   <MdAdd className="text-lg" /> Add Tale
                 </button>
               )
-              
+
             ) : (
               <>
                 <button className="btn-small" onClick={handleAddOrUpdateClick}>
