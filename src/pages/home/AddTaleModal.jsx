@@ -9,13 +9,14 @@ import { MdAdd, MdClose, MdDeleteOutline, MdUpdate } from "react-icons/md";
 import { toast } from "react-toastify";
 
 const AddTaleModal = ({ taleInfo, type, onClose, getAllTales }) => {
-
-  const [loading, setLoading] = useState(false)
-  const [title, setTitle] = useState("");
-  const [taleImg, setTaleImg] = useState(null);
-  const [tale, setTale] = useState("");
-  const [visitedLocation, setVisitedLocation] = useState([]);
-  const [visitedDate, setVisitedDate] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [title, setTitle] = useState(taleInfo?.title || "");
+  const [taleImg, setTaleImg] = useState(taleInfo?.image || "");
+  const [tale, setTale] = useState(taleInfo?.tale || "");
+  const [visitedLocation, setVisitedLocation] = useState(
+    taleInfo?.visitedLocation || []
+  );
+  const [visitedDate, setVisitedDate] = useState(taleInfo?.visitedDate || null);
   const [error, setError] = useState("");
 
   const addNewTale = async () => {
@@ -33,7 +34,7 @@ const AddTaleModal = ({ taleInfo, type, onClose, getAllTales }) => {
     }
 
     try {
-      setLoading(true)
+      setLoading(true);
       const response = await axiosInstance.post("/tale/addTale", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -48,21 +49,48 @@ const AddTaleModal = ({ taleInfo, type, onClose, getAllTales }) => {
     } catch (error) {
       toast.error(error?.response?.data?.message || "Something went wrong.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   };
 
-  const updateTale = async () => {};
+  const updateTale = async () => {
+
+    const taleId = taleInfo._id;
+
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("tale", tale);
+    formData.append("visitedLocation", visitedLocation);
+    formData.append(
+      "visitedDate",
+      visitedDate ? moment(visitedDate).valueOf() : moment().valueOf()
+    );
+
+    if (taleImg) {
+      formData.append("file", taleImg);
+    }
+
+    try {
+      setLoading(true);
+      const response = await axiosInstance.put("/tale/editTale/" + taleId, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response.data && response.data.success) {
+        toast("Tale Updated !");
+        getAllTales();
+        onClose();
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAddOrUpdateClick = () => {
-    console.log("Input Data: ", {
-      title,
-      taleImg,
-      tale,
-      visitedLocation,
-      visitedDate,
-    });
-
     if (!title) {
       setError("Please Enter Title");
       return;
@@ -96,22 +124,35 @@ const AddTaleModal = ({ taleInfo, type, onClose, getAllTales }) => {
         <div>
           <div className="flex items-center gap-3 bg-cyan-50/50 p-2 rounded-l-lg">
             {type === "add" ? (
-
               loading ? (
-                  <button className='btn-small flex items-center gap-2 opacity-70 cursor-not-allowed' disabled>
-                    <Loader2 className='h-4 w-4 animate-spin' /> Please Wait
-                  </button>
+                <button
+                  className="btn-small flex items-center gap-2 opacity-70 cursor-not-allowed"
+                  disabled
+                >
+                  <Loader2 className="h-4 w-4 animate-spin" /> Please Wait
+                </button>
               ) : (
                 <button className="btn-small" onClick={handleAddOrUpdateClick}>
                   <MdAdd className="text-lg" /> Add Tale
                 </button>
               )
-
             ) : (
               <>
-                <button className="btn-small" onClick={handleAddOrUpdateClick}>
-                  <MdUpdate className="text-lg" /> Update Tale
-                </button>
+                {loading ? (
+                  <button
+                    className="btn-small flex items-center gap-2 opacity-70 cursor-not-allowed"
+                    disabled
+                  >
+                    <Loader2 className="h-4 w-4 animate-spin" /> Please Wait
+                  </button>
+                ) : (
+                  <button
+                    className="btn-small"
+                    onClick={handleAddOrUpdateClick}
+                  >
+                    <MdUpdate className="text-lg" /> Update Tale
+                  </button>
+                )}
               </>
             )}
 
