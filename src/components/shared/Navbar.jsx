@@ -22,33 +22,43 @@ const Navbar = ({ userInfo, searchQuery, setSearchQuery, onSearchTale, handleCle
 
   const handleSearch = () => {
     if (searchQuery) {
-      onSearchTale(searchQuery)
+      onSearchTale(searchQuery);
     }
   };
 
   const onClearSearch = () => {
-    handleClearSearch()
-    setSearchQuery("")
+    handleClearSearch();
+    setSearchQuery("");
   };
 
   return (
-    <div className="bg-white flex items-center justify-between px-6 py-2 drop-shadow sticky top-0 z-10">
-      <img src="logo.png" alt="logo" className="h-9" />
+    <div className="bg-white drop-shadow sticky top-0 z-10 w-full">
+      <div className="max-w-screen-xl mx-auto px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        {/* 🔹 Top Row: Logo & Profile (mobile: stacked) */}
+        <div className="w-full flex items-center justify-between sm:justify-start sm:gap-6">
+          <img src="logo.png" alt="logo" className="h-9" />
+          {/* Mobile: profile next to logo; Desktop: shifted right via justify-between above */}
+          <div className="sm:hidden">
+            {isToken && <ProfileInfo userInfo={userInfo} logout={logout} />}
+          </div>
+        </div>
 
-      {isToken && (
-        <>
-          <SearchBar
-            value={searchQuery}
-            onChange={({ target }) => {
-              setSearchQuery(target.value);
-            }}
-            handleSearch={handleSearch}
-            onClearSearch={onClearSearch}
-          />
-
-          <ProfileInfo userInfo={userInfo} logout={logout} />{" "}
-        </>
-      )}
+        {/* 🔹 SearchBar + Profile (desktop view only) */}
+        {isToken && (
+          <div className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-6">
+            <SearchBar
+              value={searchQuery}
+              onChange={({ target }) => setSearchQuery(target.value)}
+              handleSearch={handleSearch}
+              onClearSearch={onClearSearch}
+            />
+            {/* Desktop-only ProfileInfo */}
+            <div className="hidden sm:block">
+              <ProfileInfo userInfo={userInfo} logout={logout} />
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
