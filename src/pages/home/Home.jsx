@@ -58,6 +58,23 @@ const Home = () => {
     setOpenAddEditModal({isShown: true, type: "edit", data: data})
   };
 
+  //delete tale api 
+  const deleteTale = async (data) => {
+    const taleId = data._id
+
+    try {
+      const response = await axiosInstance.delete("/tale/deleteTale/" + taleId)
+
+      if (response.data && !response.data.error) {
+        toast.error("Tale Deleted !")
+        setOpenViewModal((prevState) => ({ ...prevState, isShown: false}))
+        getAllTales()
+      }
+    } catch (error) {
+      toast.error("Error Deleting Tale")
+    }
+  }
+
   // Handle tale click
   const handleViewTale = (data) => {
     setOpenViewModal({isShown: true, data})
@@ -84,7 +101,7 @@ const Home = () => {
         getAllTales();
       }
     } catch (error) {
-      console.error("Unexpected Error Occurred.");
+      toast.error("Error Adding Tale to Favourites")
     }
   };
 
@@ -172,7 +189,7 @@ const Home = () => {
           onclose={()=> {
             setOpenViewModal((prevState) => ({...prevState, isShown: false}))
           }}
-          onDeleteClick={()=> {}}
+          onDeleteClick={()=> deleteTale(openViewModal.data)}
           onEditClick={()=> {
             setOpenViewModal((prevState) => ({...prevState, isShown: false}))
             handleEdit(openViewModal.data || null)
