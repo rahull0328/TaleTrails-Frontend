@@ -8,12 +8,18 @@ import { MdAdd } from "react-icons/md";
 import ReactModal from "react-modal";
 import AddTaleModal from "./AddTaleModal";
 import ViewTale from "./ViewTale";
+import EmptyCard from "@/components/cards/EmptyCard";
+import diary from "../../assets/diary.png";
 
 const Home = () => {
   const navigate = useNavigate();
 
   const [userInfo, setUserInfo] = useState(null);
   const [allStories, setAllStories] = useState([]);
+
+  //search
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterType, setFilterType] = useState('')
 
   const [openAddEditModal, setOpenAddEditModal] = useState({
     isShown: false,
@@ -24,7 +30,7 @@ const Home = () => {
   const [openViewModal, setOpenViewModal] = useState({
     isShown: false,
     data: null,
-  })
+  });
 
   // Get user info
   const getUserInfo = async () => {
@@ -55,29 +61,29 @@ const Home = () => {
 
   // Handle edit story click
   const handleEdit = (data) => {
-    setOpenAddEditModal({isShown: true, type: "edit", data: data})
+    setOpenAddEditModal({ isShown: true, type: "edit", data: data });
   };
 
-  //delete tale api 
+  //delete tale api
   const deleteTale = async (data) => {
-    const taleId = data._id
+    const taleId = data._id;
 
     try {
-      const response = await axiosInstance.delete("/tale/deleteTale/" + taleId)
+      const response = await axiosInstance.delete("/tale/deleteTale/" + taleId);
 
       if (response.data && !response.data.error) {
-        toast.error("Tale Deleted !")
-        setOpenViewModal((prevState) => ({ ...prevState, isShown: false}))
-        getAllTales()
+        toast.error("Tale Deleted !");
+        setOpenViewModal((prevState) => ({ ...prevState, isShown: false }));
+        getAllTales();
       }
     } catch (error) {
-      toast.error("Error Deleting Tale")
+      toast.error("Error Deleting Tale");
     }
-  }
+  };
 
   // Handle tale click
   const handleViewTale = (data) => {
-    setOpenViewModal({isShown: true, data})
+    setOpenViewModal({ isShown: true, data });
   };
 
   // Handle isFavourite click
@@ -101,9 +107,32 @@ const Home = () => {
         getAllTales();
       }
     } catch (error) {
-      toast.error("Error Adding Tale to Favourites")
+      toast.error("Error Adding Tale to Favourites");
     }
   };
+
+  //search tale
+  const onSearchTale = async (query) => {
+    try {
+      const response = await axiosInstance.get('/tale/searchTale', {
+        params: {
+          query,
+        }
+      })
+
+      if(response.data && response.data.searchResult) {
+        setFilterType("search")
+        setAllStories(response.data.searchResult)
+      }
+    } catch (error) {
+      console.log("Unexpected Error Occured. Please try again")
+    }
+  }
+
+  const handleClearSearch = () => {
+    setFilterType("")
+    getAllTales()
+  }
 
   useEffect(() => {
     getUserInfo();
@@ -112,7 +141,13 @@ const Home = () => {
 
   return (
     <>
-      <Navbar userInfo={userInfo} />
+      <Navbar
+        userInfo={userInfo}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        onSearchTale={onSearchTale}
+        handleClearSearch={handleClearSearch}
+      />
 
       {/* Tale Cards Section */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
@@ -137,9 +172,12 @@ const Home = () => {
                 ))}
               </div>
             ) : (
-              <div className="text-slate-500 text-center py-10">
-                No tales found.
-              </div>
+              <>
+                <EmptyCard
+                  imgSrc={diary}
+                  message={`Start creating your first tale! Click the 'Add' button to add your travel stories!`}
+                />
+              </>
             )}
           </div>
 
@@ -174,25 +212,25 @@ const Home = () => {
       {/* open popup modal for selected tale */}
       <ReactModal
         isOpen={openViewModal.isShown}
-        onRequestClose={()=> {}}
+        onRequestClose={() => {}}
         style={{
           overlay: {
             backgroundColor: "rgba(0,0,0,0.2)",
             zIndex: 999,
-          }
+          },
         }}
         appElement={document.getElementById("root")}
         className="modal-box scrollbar"
       >
-        <ViewTale 
-          taleInfo = {openViewModal.data || null}
-          onclose={()=> {
-            setOpenViewModal((prevState) => ({...prevState, isShown: false}))
+        <ViewTale
+          taleInfo={openViewModal.data || null}
+          onclose={() => {
+            setOpenViewModal((prevState) => ({ ...prevState, isShown: false }));
           }}
-          onDeleteClick={()=> deleteTale(openViewModal.data)}
-          onEditClick={()=> {
-            setOpenViewModal((prevState) => ({...prevState, isShown: false}))
-            handleEdit(openViewModal.data || null)
+          onDeleteClick={() => deleteTale(openViewModal.data)}
+          onEditClick={() => {
+            setOpenViewModal((prevState) => ({ ...prevState, isShown: false }));
+            handleEdit(openViewModal.data || null);
           }}
         />
       </ReactModal>
