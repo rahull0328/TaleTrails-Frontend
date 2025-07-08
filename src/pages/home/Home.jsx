@@ -9,11 +9,10 @@ import ReactModal from "react-modal";
 import AddTaleModal from "./AddTaleModal";
 import ViewTale from "./ViewTale";
 import EmptyCard from "@/components/cards/EmptyCard";
-import diary from "../../assets/diary.png";
 import { DayPicker } from "react-day-picker";
 import moment from "moment";
 import FilterInfoTitle from "@/components/cards/FilterInfoTitle";
-import { getEmptyCardMessage } from "@/utils/helper";
+import { getEmptyCardImg, getEmptyCardMessage } from "@/utils/helper";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -21,12 +20,9 @@ const Home = () => {
   const [userInfo, setUserInfo] = useState(null);
   const [allStories, setAllStories] = useState([]);
 
-  //search
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterType, setFilterType] = useState('')
-
-  //date picker
-  const [dateRange, setDateRange] = useState({from: null, to: null})
+  const [filterType, setFilterType] = useState("");
+  const [dateRange, setDateRange] = useState({ from: null, to: null });
 
   const [openAddEditModal, setOpenAddEditModal] = useState({
     isShown: false,
@@ -39,11 +35,10 @@ const Home = () => {
     data: null,
   });
 
-  // Get user info
   const getUserInfo = async () => {
     try {
       const response = await axiosInstance.get("/user/getUserInfo");
-      if (response.data && response.data.user) {
+      if (response.data?.user) {
         setUserInfo(response.data.user);
       }
     } catch (error) {
@@ -54,11 +49,10 @@ const Home = () => {
     }
   };
 
-  // Get all travel stories
   const getAllTales = async () => {
     try {
       const response = await axiosInstance.get("/tale/getAllTales");
-      if (response.data && response.data.tales) {
+      if (response.data?.tales) {
         setAllStories(response.data.tales);
       }
     } catch (error) {
@@ -66,121 +60,96 @@ const Home = () => {
     }
   };
 
-  // Handle edit story click
   const handleEdit = (data) => {
-    setOpenAddEditModal({ isShown: true, type: "edit", data: data });
+    setOpenAddEditModal({ isShown: true, type: "edit", data });
   };
 
-  //delete tale api
   const deleteTale = async (data) => {
-    const taleId = data._id;
-
     try {
-      const response = await axiosInstance.delete("/tale/deleteTale/" + taleId);
-
+      const response = await axiosInstance.delete(`/tale/deleteTale/${data._id}`);
       if (response.data && !response.data.error) {
-        toast.error("Tale Deleted !");
-        setOpenViewModal((prevState) => ({ ...prevState, isShown: false }));
+        toast.error("Tale Deleted!");
+        setOpenViewModal((prev) => ({ ...prev, isShown: false }));
         getAllTales();
       }
-    } catch (error) {
+    } catch {
       toast.error("Error Deleting Tale");
     }
   };
 
-  // Handle tale click
   const handleViewTale = (data) => {
     setOpenViewModal({ isShown: true, data });
   };
 
-  // Handle isFavourite click
   const updateIsFavourite = async (taleData) => {
-    const taleId = taleData._id;
-
     try {
       const response = await axiosInstance.put(
-        "/tale/addToFavourites/" + taleId,
-        {
-          isFavourite: !taleData.isFavourite,
-        }
+        `/tale/addToFavourites/${taleData._id}`,
+        { isFavourite: !taleData.isFavourite }
       );
 
-      if (response.data && response.data.message) {
-        if (!taleData.isFavourite) {
-          toast("Added to favourites!");
-        } else {
-          toast.info("Removed from favourites!");
-        }
+      if (response.data?.message) {
+        toast(!taleData.isFavourite ? "Added to favourites!" : "Removed from favourites!");
 
-        if(filterType === 'search' && searchQuery) {
-          onSearchTale(searchQuery)
-        } else if (filterType === 'date') {
-          filterTaleByDate(dateRange)
-        } else {
-          getAllTales();
-        }
+        if (filterType === "search" && searchQuery) onSearchTale(searchQuery);
+        else if (filterType === "date") filterTaleByDate(dateRange);
+        else getAllTales();
       }
-    } catch (error) {
+    } catch {
       toast.error("Error Adding Tale to Favourites");
     }
   };
 
-  //search tale
   const onSearchTale = async (query) => {
     try {
-      const response = await axiosInstance.get('/tale/searchTale', {
-        params: {
-          query,
-        }
-      })
+      const response = await axiosInstance.get("/tale/searchTale", {
+        params: { query },
+      });
 
-      if(response.data && response.data.searchResult) {
-        setFilterType("search")
-        setAllStories(response.data.searchResult)
+      if (response.data?.searchResult) {
+        setFilterType("search");
+        setAllStories(response.data.searchResult);
       }
-    } catch (error) {
-      console.log("Unexpected Error Occured. Please try again")
+    } catch {
+      console.log("Unexpected Error Occurred. Please try again");
     }
-  }
+  };
 
   const handleClearSearch = () => {
-    setFilterType("")
-    getAllTales()
-  }
+    setFilterType("");
+    getAllTales();
+  };
 
-  //handling tale filter by date
   const filterTaleByDate = async (day) => {
     try {
       const startDate = day.from ? moment(day.from).valueOf() : null;
       const endDate = day.to ? moment(day.to).valueOf() : null;
 
-      if(startDate && endDate) {
-        const response = await axiosInstance.get('/tale/filterTale', {
-          params: {startDate, endDate},
-        })
+      if (startDate && endDate) {
+        const response = await axiosInstance.get("/tale/filterTale", {
+          params: { startDate, endDate },
+        });
 
-        if(response.data && response.data.filteredTales) {
-          setFilterType("date")
-          setAllStories(response.data.filteredTales)
+        if (response.data?.filteredTales) {
+          setFilterType("date");
+          setAllStories(response.data.filteredTales);
         }
       }
-    } catch (error) {
-      console.log("Unexpected Error Occured. Please try again")
+    } catch {
+      console.log("Unexpected Error Occurred. Please try again");
     }
-  }
+  };
 
-  // handling selected date
   const handleDayClick = (day) => {
-    setDateRange(day)
-    filterTaleByDate(day)
-  }
+    setDateRange(day);
+    filterTaleByDate(day);
+  };
 
-  //reset the applied filters
   const resetFilter = () => {
-    setDateRange({from: null, to: null})
-    setFilterType("")
-    getAllTales()
-  }
+    setDateRange({ from: null, to: null });
+    setFilterType("");
+    getAllTales();
+  };
 
   useEffect(() => {
     getUserInfo();
@@ -197,17 +166,15 @@ const Home = () => {
         handleClearSearch={handleClearSearch}
       />
 
-      <FilterInfoTitle 
+      <FilterInfoTitle
         filterType={filterType}
         filterDates={dateRange}
-        onClear={()=> {
-          resetFilter()
-        }}
+        onClear={resetFilter}
       />
 
       {/* Tale Cards Section */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
-        <div className="flex flex-col lg:flex-row gap-7">
+        <div className="flex flex-col lg:flex-row gap-7 flex-wrap">
           {/* Tale Card List */}
           <div className="flex-1">
             {allStories.length > 0 ? (
@@ -228,20 +195,18 @@ const Home = () => {
                 ))}
               </div>
             ) : (
-              <>
-                <EmptyCard
-                  imgSrc={diary}
-                  message={getEmptyCardMessage(filterType)}
-                />
-              </>
+              <EmptyCard
+                imgSrc={getEmptyCardImg(filterType)}
+                message={getEmptyCardMessage(filterType)}
+              />
             )}
           </div>
 
-          {/* Right Sidebar */}
+          {/* Desktop Calendar */}
           <div className="hidden lg:block w-[300px] xl:w-[320px]">
             <div className="bg-white border border-slate-200 shadow-lg shadow-slate-200/60 rounded-lg">
               <div className="p-3">
-                <DayPicker 
+                <DayPicker
                   captionLayout="dropdown-buttons"
                   mode="range"
                   selected={dateRange}
@@ -252,17 +217,28 @@ const Home = () => {
             </div>
           </div>
         </div>
+
+        {/* Mobile Calendar */}
+        <div className="block lg:hidden mt-6">
+          <div className="bg-white border border-slate-200 rounded-lg shadow-md px-4 py-3">
+            <h3 className="text-sm font-semibold mb-2">Filter by Date</h3>
+            <DayPicker
+              captionLayout="dropdown-buttons"
+              mode="range"
+              selected={dateRange}
+              onSelect={handleDayClick}
+              pagedNavigation
+            />
+          </div>
+        </div>
       </div>
 
-      {/* add & edit tales modal */}
+      {/* Add & Edit Tale Modal */}
       <ReactModal
         isOpen={openAddEditModal.isShown}
         onRequestClose={() => {}}
         style={{
-          overlay: {
-            backgroundColor: "rgba(0,0,0,0.2)",
-            zIndex: 999,
-          },
+          overlay: { backgroundColor: "rgba(0,0,0,0.2)", zIndex: 999 },
         }}
         appElement={document.getElementById("root")}
         className="modal-box scrollbar"
@@ -270,34 +246,31 @@ const Home = () => {
         <AddTaleModal
           type={openAddEditModal.type}
           taleInfo={openAddEditModal.data}
-          onClose={() => {
-            setOpenAddEditModal({ isShown: false, type: "add", data: null });
-          }}
+          onClose={() =>
+            setOpenAddEditModal({ isShown: false, type: "add", data: null })
+          }
           getAllTales={getAllTales}
         />
       </ReactModal>
 
-      {/* open popup modal for selected tale */}
+      {/* View Tale Modal */}
       <ReactModal
         isOpen={openViewModal.isShown}
         onRequestClose={() => {}}
         style={{
-          overlay: {
-            backgroundColor: "rgba(0,0,0,0.2)",
-            zIndex: 999,
-          },
+          overlay: { backgroundColor: "rgba(0,0,0,0.2)", zIndex: 999 },
         }}
         appElement={document.getElementById("root")}
         className="modal-box scrollbar"
       >
         <ViewTale
           taleInfo={openViewModal.data || null}
-          onclose={() => {
-            setOpenViewModal((prevState) => ({ ...prevState, isShown: false }));
-          }}
+          onclose={() =>
+            setOpenViewModal((prev) => ({ ...prev, isShown: false }))
+          }
           onDeleteClick={() => deleteTale(openViewModal.data)}
           onEditClick={() => {
-            setOpenViewModal((prevState) => ({ ...prevState, isShown: false }));
+            setOpenViewModal((prev) => ({ ...prev, isShown: false }));
             handleEdit(openViewModal.data || null);
           }}
         />
