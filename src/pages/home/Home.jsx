@@ -10,6 +10,10 @@ import AddTaleModal from "./AddTaleModal";
 import ViewTale from "./ViewTale";
 import EmptyCard from "@/components/cards/EmptyCard";
 import diary from "../../assets/diary.png";
+import { DayPicker } from "react-day-picker";
+import moment from "moment";
+import FilterInfoTitle from "@/components/cards/FilterInfoTitle";
+import { getEmptyCardMessage } from "@/utils/helper";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -20,6 +24,9 @@ const Home = () => {
   //search
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState('')
+
+  //date picker
+  const [dateRange, setDateRange] = useState({from: null, to: null})
 
   const [openAddEditModal, setOpenAddEditModal] = useState({
     isShown: false,
@@ -104,7 +111,14 @@ const Home = () => {
         } else {
           toast.info("Removed from favourites!");
         }
-        getAllTales();
+
+        if(filterType === 'search' && searchQuery) {
+          onSearchTale(searchQuery)
+        } else if (filterType === 'date') {
+          filterTaleByDate(dateRange)
+        } else {
+          getAllTales();
+        }
       }
     } catch (error) {
       toast.error("Error Adding Tale to Favourites");
@@ -134,6 +148,40 @@ const Home = () => {
     getAllTales()
   }
 
+  //handling tale filter by date
+  const filterTaleByDate = async (day) => {
+    try {
+      const startDate = day.from ? moment(day.from).valueOf() : null;
+      const endDate = day.to ? moment(day.to).valueOf() : null;
+
+      if(startDate && endDate) {
+        const response = await axiosInstance.get('/tale/filterTale', {
+          params: {startDate, endDate},
+        })
+
+        if(response.data && response.data.filteredTales) {
+          setFilterType("date")
+          setAllStories(response.data.filteredTales)
+        }
+      }
+    } catch (error) {
+      console.log("Unexpected Error Occured. Please try again")
+    }
+  }
+
+  // handling selected date
+  const handleDayClick = (day) => {
+    setDateRange(day)
+    filterTaleByDate(day)
+  }
+
+  //reset the applied filters
+  const resetFilter = () => {
+    setDateRange({from: null, to: null})
+    setFilterType("")
+    getAllTales()
+  }
+
   useEffect(() => {
     getUserInfo();
     getAllTales();
@@ -147,6 +195,14 @@ const Home = () => {
         setSearchQuery={setSearchQuery}
         onSearchTale={onSearchTale}
         handleClearSearch={handleClearSearch}
+      />
+
+      <FilterInfoTitle 
+        filterType={filterType}
+        filterDates={dateRange}
+        onClear={()=> {
+          resetFilter()
+        }}
       />
 
       {/* Tale Cards Section */}
@@ -175,14 +231,26 @@ const Home = () => {
               <>
                 <EmptyCard
                   imgSrc={diary}
-                  message={`Start creating your first tale! Click the 'Add' button to add your travel stories!`}
+                  message={getEmptyCardMessage(filterType)}
                 />
               </>
             )}
           </div>
 
-          {/* Right Sidebar (optional) */}
-          <div className="hidden lg:block w-[300px] xl:w-[400px]"></div>
+          {/* Right Sidebar */}
+          <div className="hidden lg:block w-[300px] xl:w-[320px]">
+            <div className="bg-white border border-slate-200 shadow-lg shadow-slate-200/60 rounded-lg">
+              <div className="p-3">
+                <DayPicker 
+                  captionLayout="dropdown-buttons"
+                  mode="range"
+                  selected={dateRange}
+                  onSelect={handleDayClick}
+                  pagedNavigation
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

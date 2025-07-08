@@ -6,7 +6,7 @@
   --rdp-accent-color: #01b0cb !important;
   --rdp-accent-background-color: #dffbff !important;
   --rdp-day_button-border-radius: 8px !important;
-  --rdp-selected-font: bold medium var(--rdp-font=family) !important;
+  --rdp-selected-font: bold medium var(--rdp-font-family) !important;
 }
 
 @layer base {
